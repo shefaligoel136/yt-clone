@@ -1,30 +1,83 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import moment from "moment";
 import "./_video.scss";
+import request from "../../api";
 
 import { AiFillEye } from "react-icons/ai";
+import numeral from "numeral";
 
-const Video = () => {
+import { LazyLoadImage } from "react-lazy-load-image-component";
+
+const Video = ({ video }) => {
+  const {
+    id,
+    snippet: {
+      channelId,
+      channelTitle,
+      publishedAt,
+      title,
+      thumbnails: { medium },
+    },
+  } = video;
+
+  const [views, setViews] = useState(null);
+  const [duration, setDuration] = useState(null);
+  const [channelIcon, setChannelIcon] = useState(null);
+
+  const seconds = moment.duration(duration).asSeconds();
+  const _duration = moment.utc(seconds * 1000).format("mm:ss");
+
+  const _videoId = id?.videoId || id;
+
+  useEffect(() => {
+    const getVideoDetails = async () => {
+      const {
+        data: { items },
+      } = await request.get("/videos", {
+        params: {
+          part: "contentDetails, statistics",
+          id: _videoId,
+        },
+      });
+      setDuration(items[0].contentDetails.duration);
+      setViews(items[0].statistics.viewCount);
+    };
+    getVideoDetails();
+  }, [_videoId]);
+
+  useEffect(() => {
+    const getChannelIcons = async () => {
+      const {
+        data: { items },
+      } = await request.get("/channels", {
+        params: {
+          part: "snippet",
+          id: channelId,
+        },
+      });
+      setChannelIcon(items[0].snippet.thumbnails.default);
+    };
+    getChannelIcons();
+  }, [channelId]);
+
   return (
     <div className="video">
       <div className="video_top">
-        <img src="https://i.ytimg.com/vi/DLX62G4lc44/hq720.jpg?sqp=-oaymwEcCNAFEJQDSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLAerFBMpMABVPAoBUVS9MJpRerx4A" alt="" />
-        <span>05:00</span>
+        <LazyLoadImage src={medium.url} effect="blur" />
+        <span className="video_top_duration">{_duration}</span>
       </div>
-      <div className="video_title">Create react app</div>
+      <div className="video_title">{title}</div>
       <div className="video_details">
         <span>
           <AiFillEye />
-          5M Views •{" "}
+          {numeral(views).format("0.a")} Views •{" "}
         </span>
-        <span>5 Days Ago</span>
+        <span>{moment(publishedAt).fromNow()}</span>
       </div>
 
-      <div className="video_channel">
-        <img
-          src="https://i.ytimg.com/vi/w7ejDZ8SWv8/hq720.jpg?sqp=-oaymwEcCNAFEJQDSFXyq4qpAw4IARUAAIhCGAFwAcABBg==&rs=AOn4CLDLtqhjnv15Y388joYu5qQ3VjlhZw"
-          alt=""
-        />
-        <p>REACT WHAT?</p>
+      <div className="video_channel"> 
+        <LazyLoadImage src={channelIcon?.url} effect="blur" />
+        <p>{channelTitle}</p>
       </div>
     </div>
   );
