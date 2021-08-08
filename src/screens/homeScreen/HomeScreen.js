@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Col, Container } from "react-bootstrap";
+import { Col, Container, Row } from "react-bootstrap";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import CategoriesBar from "../../components/categoriesBar/CategoriesBar";
@@ -13,7 +13,7 @@ import InfiniteScroll from "react-infinite-scroll-component";
 
 import "./_homeScreen.scss";
 import SkeletonVideo from "../../components/Skeleton/SkeletonVideo";
-
+ 
 const HomeScreen = () => {
   const dispatch = useDispatch();
 
@@ -36,7 +36,7 @@ const HomeScreen = () => {
     <Container>
       <CategoriesBar />
 
-      <InfiniteScroll
+      {/* <InfiniteScroll
         dataLength={videos.length}
         next={fetchData}
         hasMore={true}
@@ -44,7 +44,8 @@ const HomeScreen = () => {
           <div className="spinner-border text-danger d-block mx-auto"></div>
         }
         className="row"
-      >
+      > */}
+      <Row>
         {!loading
           ? videos.map((video) => (
               <Col lg={3} md={4} key={video.id}>
@@ -52,11 +53,12 @@ const HomeScreen = () => {
               </Col>
             ))
           : [...Array(20)].map(() => (
-            <Col lg={3} md={4}>
-               <SkeletonVideo/>
-            </Col>
-         ))}
-      </InfiniteScroll>
+              <Col lg={3} md={4}>
+                <SkeletonVideo />
+              </Col>
+            ))}
+      </Row>
+      {/* </InfiniteScroll> */}
     </Container>
   );
 };

@@ -1,12 +1,7 @@
 import { useState, useEffect } from "react";
-import {useSelector} from 'react-redux';
+import { useSelector } from "react-redux";
 import { Container } from "react-bootstrap";
-import {
-  Switch,
-  Route,
-  Redirect,
-  useHistory,
-} from "react-router-dom";
+import { Switch, Route, Redirect, useHistory } from "react-router-dom";
 
 import Header from "./components/header/Header";
 import Sidebar from "./components/sidebar/Sidebar";
@@ -14,6 +9,7 @@ import HomeScreen from "./screens/homeScreen/HomeScreen";
 import LoginScreen from "./screens/loginScreen/LoginScreen";
 
 import "./_app.scss";
+import WatchScreen from "./screens/watchScreen/WatchScreen";
 
 const Layout = ({ children }) => {
   const [sidebar, toggleSidebar] = useState(false);
@@ -34,11 +30,11 @@ const Layout = ({ children }) => {
 };
 
 const App = () => {
-  const { accessToken, loading } = useSelector(state => state.auth)
+  const { accessToken, loading } = useSelector((state) => state.auth);
   const history = useHistory();
   useEffect(() => {
     if (!loading && !accessToken) {
-      history.push('/auth');
+      history.push("/auth");
     }
   }, [accessToken, loading, history]);
 
@@ -57,11 +53,16 @@ const App = () => {
       <Route path="/auth">
         <LoginScreen />
       </Route>
+      <Route path="/watch/:id">
+        <Layout>
+          <WatchScreen />
+        </Layout>
+      </Route>
       <Route>
         <Redirect to="/" />
       </Route>
     </Switch>
   );
-}
+};
 
 export default App;
